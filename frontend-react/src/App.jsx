@@ -577,68 +577,82 @@ export default function App() {
             )}
           </Card>
 
-          {(aiResult || atsResult) && (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: aiResult && atsResult ? "1fr 1fr" : "1fr",
-              gap: 24, animation: "fadeUp 0.6s ease forwards",
-            }}>
-              {aiResult && (
-                <Card>
-                  <SectionHead label="Resume Evaluation" />
-                  <div style={{
-                    background: "rgba(99,202,183,0.08)", border: "1px solid rgba(99,202,183,0.2)",
-                    borderRadius: 10, padding: "12px 16px", marginBottom: 20,
-                    display: "flex", alignItems: "center", gap: 12,
-                  }}>
-                    <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700, color: "var(--accent)" }}>
-                      {aiResult.title}
-                    </span>
-                  </div>
-                  <div style={{ marginBottom: 18 }}>
-                    <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--success)", marginBottom: 10 }}> Strengths</p>
-                    <ul style={{ paddingLeft: 0, listStyle: "none" }}>
-                      {aiResult.strengths?.map((s, i) => (
-                        <li key={i} style={{ padding: "8px 12px", marginBottom: 6, borderRadius: 8, background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.12)", fontSize: 13, color: "var(--text)", lineHeight: 1.5, display: "flex", gap: 8, alignItems: "flex-start" }}>
-                          <span style={{ color: "var(--success)", marginTop: 1 }}>▸</span>
-                          {s}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--accent2)", marginBottom: 10 }}> Strategic Career Advice</p>
-                    <div style={{ background: "rgba(240,165,0,0.06)", border: "1px solid rgba(240,165,0,0.15)", borderRadius: 10, padding: "14px 16px", fontSize: 13, color: "#c9a85c", lineHeight: 1.7, borderLeft: "3px solid var(--accent2)" }}>
-                      {aiResult.advice}
-                    </div>
-                  </div>
-                </Card>
-              )}
+         {(aiResult || atsResult) && (
+                     <div style={{
+                       display: "grid",
+                       gridTemplateColumns: aiResult && atsResult ? "1fr 1fr" : "1fr",
+                       gap: 24, animation: "fadeUp 0.6s ease forwards",
+                     }}>
+                       {aiResult && (
+                         <Card>
+                           <SectionHead label="AI Resume Evaluation" />
 
-              {atsResult && (
-                <Card>
-                  <SectionHead label="ATS Diagnostics" />
-                  <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
-                    <ScoreRing score={atsResult.score} />
-                  </div>
-                  <div style={{ marginBottom: 18 }}>
-                    <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--success)", marginBottom: 10 }}>Matched Keywords</p>
-                    <div style={{ display: "flex", flexWrap: "wrap" }}>
-                      {atsResult.matchedKeywords?.map((k, i) => <KeywordChip key={i} word={k} type="match" />)}
-                    </div>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--danger)", marginBottom: 10 }}> Missing Keywords</p>
-                    <div style={{ display: "flex", flexWrap: "wrap" }}>
-                      {atsResult.missingKeywords?.map((k, i) => <KeywordChip key={i} word={k} type="miss" />)}
-                    </div>
-                  </div>
-                </Card>
-              )}
-            </div>
-          )}
-        </div>
+                           {/* Title / Profile Summary */}
+                           <div style={{
+                             background: "rgba(99,202,183,0.08)", border: "1px solid rgba(99,202,183,0.2)",
+                             borderRadius: 10, padding: "12px 16px", marginBottom: 20,
+                           }}>
+                             <span style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700, color: "var(--accent)" }}>
+                               {aiResult.title || "Resume Profile Identified"}
+                             </span>
+                           </div>
 
+                           {/* Strengths List */}
+                           <div style={{ marginBottom: 18 }}>
+                             <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--success)", marginBottom: 10 }}>✓ Key Strengths</p>
+                             <ul style={{ paddingLeft: 0, listStyle: "none" }}>
+                               {aiResult.strengths && aiResult.strengths.length > 0 ? aiResult.strengths.map((s, i) => (
+                                 <li key={i} style={{ padding: "8px 12px", marginBottom: 6, borderRadius: 8, background: "rgba(74,222,128,0.06)", border: "1px solid rgba(74,222,128,0.12)", fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
+                                   {s}
+                                 </li>
+                               )) : <li style={{color: 'var(--muted)', fontSize: 12}}>No strengths identified.</li>}
+                             </ul>
+                           </div>
+
+                           {/* Improvements List - ADDED THIS SECTION */}
+                           <div style={{ marginBottom: 18 }}>
+                             <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--danger)", marginBottom: 10 }}>⚠ Critical Improvements</p>
+                             <ul style={{ paddingLeft: 0, listStyle: "none" }}>
+                               {aiResult.improvements && aiResult.improvements.length > 0 ? aiResult.improvements.map((imp, i) => (
+                                 <li key={i} style={{ padding: "8px 12px", marginBottom: 6, borderRadius: 8, background: "rgba(255,90,90,0.06)", border: "1px solid rgba(255,90,90,0.12)", fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
+                                   {imp}
+                                 </li>
+                               )) : <li style={{color: 'var(--muted)', fontSize: 12}}>No major improvements needed.</li>}
+                             </ul>
+                           </div>
+
+                           {/* Career Advice */}
+                           <div>
+                             <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--accent2)", marginBottom: 10 }}>Strategic Career Advice</p>
+                             <div style={{ background: "rgba(240,165,0,0.06)", border: "1px solid rgba(240,165,0,0.15)", borderRadius: 10, padding: "14px 16px", fontSize: 13, color: "#c9a85c", lineHeight: 1.7, borderLeft: "3px solid var(--accent2)" }}>
+                               {aiResult.advice || "No specific advice generated."}
+                             </div>
+                           </div>
+                         </Card>
+                       )}
+
+                       {atsResult && (
+                         <Card>
+                           <SectionHead label="ATS Diagnostics" />
+                           <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+                             <ScoreRing score={atsResult.score} />
+                           </div>
+                           <div style={{ marginBottom: 18 }}>
+                             <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--success)", marginBottom: 10 }}>Matched Keywords</p>
+                             <div style={{ display: "flex", flexWrap: "wrap" }}>
+                               {atsResult.matchedKeywords?.map((k, i) => <KeywordChip key={i} word={k} type="match" />)}
+                             </div>
+                           </div>
+                           <div>
+                             <p style={{ fontSize: 11, fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--danger)", marginBottom: 10 }}> Missing Keywords</p>
+                             <div style={{ display: "flex", flexWrap: "wrap" }}>
+                               {atsResult.missingKeywords?.map((k, i) => <KeywordChip key={i} word={k} type="miss" />)}
+                             </div>
+                           </div>
+                         </Card>
+                       )}
+                     </div>
+                   )}
         <footer style={{ textAlign: "center", marginTop: 80, paddingTop: 32, borderTop: "1px solid var(--border)" }}>
           <p style={{ color: "var(--muted)", fontFamily: "var(--font-mono)", fontSize: 12 }}>
             Resume Intelligence Engine · Built for ambitious students · <span style={{ color: "var(--accent)" }}>Build by ANKITA JOSHI</span>
