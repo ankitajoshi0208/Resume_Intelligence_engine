@@ -1,15 +1,10 @@
-# Step 1: Build using the most standard Maven image
-FROM maven:3-openjdk-17 AS build
+# We use a single-stage build for simplicity to avoid folder path errors
+FROM maven:3.8.5-openjdk-17
 WORKDIR /app
 COPY . .
-# This creates the JAR file
+# Build the project
 RUN mvn clean package -DskipTests
-
-# Step 2: Run using the most standard OpenJDK image
-FROM openjdk:17-alpine
-WORKDIR /app
-# Copy the built JAR from the first step
-COPY --from=build /app/target/*.jar app.jar
+# Port for Spring Boot
 EXPOSE 8080
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the generated jar from the target folder
+CMD ["java", "-jar", "target/Resume_Analyzer-0.0.1-SNAPSHOT.jar"]
