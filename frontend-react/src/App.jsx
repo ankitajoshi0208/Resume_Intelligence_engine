@@ -357,12 +357,12 @@ export default function App() {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("jobDescription", jd || "");
-        const res = await fetch("http://localhost:8080/api/resume/upload", { method: "POST", body: formData });
+        const res = await fetch("https://resume-intelligence-engine-1.onrender.com/api/resume/upload", { method: "POST", body: formData });
         const data = await res.json();
         setAiResult(data.ai);
         if (data.ats) setAtsResult(data.ats);
       } else {
-        const response = await fetch("http://localhost:8080/api/resume/analyze", {
+        const response = await fetch("https://resume-intelligence-engine-1.onrender.com/api/resume/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ resumeText: text, jobDescription: "" }),
@@ -384,13 +384,13 @@ export default function App() {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("jobDescription", jd);
-        const res = await fetch("http://localhost:8080/api/resume/upload", { method: "POST", body: formData });
+        const res = await fetch("https://resume-intelligence-engine-1.onrender.com/api/resume/upload", { method: "POST", body: formData });
         const data = await res.json();
         setAtsResult(data.ats);
         if (data.ai) setAiResult(data.ai);
       } else {
         if (!text) throw new Error("Please paste your resume text first.");
-        const response = await fetch("http://localhost:8080/api/resume/analyze", {
+        const response = await fetch("https://resume-intelligence-engine-1.onrender.com/api/resume/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ resumeText: text, jobDescription: jd }),
