@@ -1,12 +1,15 @@
-# Step 1: Build using Maven and Amazon Corretto (Very stable)
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Step 1: Build using the most standard Maven image
+FROM maven:3-openjdk-17 AS build
 WORKDIR /app
 COPY . .
+# This creates the JAR file
 RUN mvn clean package -DskipTests
 
-# Step 2: Run using Eclipse Temurin (The industry standard for Java Docker)
-FROM eclipse-temurin:17-jre-jammy
+# Step 2: Run using the most standard OpenJDK image
+FROM openjdk:17-alpine
 WORKDIR /app
+# Copy the built JAR from the first step
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
+# Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]
