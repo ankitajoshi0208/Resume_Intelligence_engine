@@ -1,12 +1,15 @@
 server:
-  port: 8080
+  # This tells Spring to use the port Render gives it, or 8080 as a backup for your local machine
+  port: ${PORT:8080}
 
 openrouter:
   api:
-    key: "api_key"
+
+    key: ${OPENROUTER_API_KEY}
     url: "https://openrouter.ai/api/v1/chat/completions"
-  model: openai/gpt-3.5-turbo
+  model: "google/gemini-2.0-flash-001" # Updated to a faster, modern model
 
 logging:
   level:
-    org.example: INFO
+    root: INFO
+    org.example: DEBUG # Keep this as DEBUG while you are testing the live deployment
