@@ -36,19 +36,7 @@ public class AIService {
             headers.set("HTTP-Referer", "https://openrouter.ai");
             headers.set("X-Title", "ResumeAnalyzerAI");
 
-            String prompt = """
-                    You are a professional resume reviewer. Analyze the following resume text and provide structured, detailed feedback in JSON format.
-                    
-                    Your response should include:
-                    - title: a one-line summary of the candidate’s profile
-                    - strengths: list of 4-6 key strengths in the resume
-                    - improvements: 4-6 specific, constructive suggestions on how to improve the resume
-                    - advice: an overall summary that helps the user understand their current standing and what to improve for better job prospects
-                    
-                    Make sure the advice is actionable and personalized. Do not repeat lines from the resume. Be honest but professional.
-                    
-                    Resume:
-                    """ + resumeText;
+            String prompt = "Analyze this resume and provide feedback in JSON format. Return ONLY raw JSON. No markdown. No backticks.\n\nResume:\n" + resumeText;
 
             Map<String, Object> message = new HashMap<>();
             message.put("role", "user");
@@ -57,42 +45,40 @@ public class AIService {
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("model", model);
             requestBody.put("messages", List.of(message));
-            requestBody.put("temperature", 0.7);
+            requestBody.put("temperature", 0.3);
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
             ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
-
-            logger.info("OpenRouter Raw Response: {}", response.getBody());
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.getBody());
 
-            if (root.has("choices") && root.get("choices").isArray() && root.get("choices").size() > 0) {
+            if (root.has("choices") && root.get("choices").isArray() && !root.get("choices").isEmpty()) {
                 String content = root.get("choices").get(0).get("message").get("content").asText();
 
-                // Parse model's response as JSON
-                JsonNode aiJson = mapper.readTree(content);
+                // SIMPLE CLEANING: Just remove markdown markers and trim
+                String cleanJson = content.replace("```json", "").replace("```", "").trim();
+
+                logger.info("Cleaned JSON: {}", cleanJson);
+
+                JsonNode aiJson = mapper.readTree(cleanJson);
 
                 String title = aiJson.path("title").asText();
-
                 List<String> strengths = new ArrayList<>();
                 aiJson.path("strengths").forEach(node -> strengths.add(node.asText()));
 
                 List<String> improvements = new ArrayList<>();
                 aiJson.path("improvements").forEach(node -> improvements.add(node.asText()));
 
-                String advice = aiJson.has("advice") ? aiJson.get("advice").asText() : "";
+                String advice = aiJson.path("advice").asText();
 
                 return new AIResponse(title, strengths, improvements, advice);
-            } else if (root.has("error")) {
-                return new AIResponse("OpenRouter Error: " + root.get("error").get("message").asText());
             } else {
-                return new AIResponse("Error: 'choices' missing or empty in response.");
+                return new AIResponse("Error: Invalid API response");
             }
 
         } catch (Exception e) {
-            logger.error("Exception while calling OpenRouter API", e);
+            logger.error("Error", e);
             return new AIResponse("Exception: " + e.getMessage());
         }
     }
