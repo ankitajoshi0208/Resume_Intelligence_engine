@@ -1,10 +1,12 @@
-# We use a single-stage build for simplicity to avoid folder path errors
-FROM maven:3.8.5-openjdk-17
+# Step 1: Build using Maven and Java 21
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-# Build the project
 RUN mvn clean package -DskipTests
-# Port for Spring Boot
+
+# Step 2: Run using Java 21 Runtime
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-# Run the generated jar from the target folder
-CMD ["java", "-jar", "target/Resume_Analyzer-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
